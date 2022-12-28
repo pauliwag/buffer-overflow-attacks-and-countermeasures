@@ -1,0 +1,36 @@
+FLAGS = -static -z execstack -fno-stack-protector
+FLAGS_WITH_STACKGUARD = -static -z execstack
+FLAGS_32 = -m32
+TARGET = server stack-L1 stack-L2 stack-L3 stack-L4
+
+L1 = 300
+L2 = 140
+L3 = 220
+L4 = 40
+
+all: $(TARGET)
+
+server: server.c
+	gcc -static -o server server.c
+
+stack-L1: stack.c
+	gcc -DBUF_SIZE=$(L1) -DSHOW_FP $(FLAGS) $(FLAGS_32) -o $@ stack.c
+
+stack-L1-with-stackguard: stack.c
+	gcc -DBUF_SIZE=$(L1) -DSHOW_FP $(FLAGS_WITH_STACKGUARD) $(FLAGS_32) -o $@ stack.c
+
+stack-L2: stack.c
+	gcc -DBUF_SIZE=$(L2) $(FLAGS) $(FLAGS_32) -o $@ stack.c
+
+stack-L3: stack.c
+	gcc -DBUF_SIZE=$(L3) -DSHOW_FP $(FLAGS) -o $@ stack.c
+
+stack-L4: stack.c
+	gcc -DBUF_SIZE=$(L4) -DSHOW_FP $(FLAGS) -o $@ stack.c
+
+clean:
+	rm -f badfile $(TARGET)
+
+install:
+	cp server ../bof-containers
+	cp stack-* ../bof-containers
